@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Pelosi" />
+<meta name="theme-color" content="#f5f2ea" />
+<link rel="manifest" href="./manifest.json" />
+<link rel="apple-touch-icon" href="./icon-192.png" />
+<title>Pelosi Tracker</title>
+<style>
+  :root{
+    --paper:#f5f2ea; --paper-2:#efebe0; --ink:#141210; --ink-2:#3b362e;
+    --muted:#6f685c; --faint:#9b9486; --rule:#d8d2c4; --rule-2:#c9c2b2;
+    --buy:#1f7a52; --buy-bg:#e7efe6; --sell:#b23a25; --sell-bg:#f4e6e1;
+    --signal:#b23a25;
+    --mono:"SF Mono",ui-monospace,"Roboto Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Inter","Helvetica Neue",Arial,sans-serif;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --paper:#16140f; --paper-2:#1d1a14; --ink:#f2ede1; --ink-2:#d2ccbe;
+      --muted:#9a9384; --faint:#6c655a; --rule:#2c281f; --rule-2:#3a352a;
+      --buy:#5cc596; --buy-bg:#152a20; --sell:#e8765c; --sell-bg:#2c1814;
+      --signal:#e8765c;
+    }
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;line-height:1.4;
+    padding:env(safe-area-inset-top) 0 calc(70px + env(safe-area-inset-bottom))}
+  .wrap{max-width:580px;margin:0 auto;padding:0 22px}
+  ::selection{background:var(--signal);color:var(--paper)}
+
+  .mast{padding:26px 0 18px;border-bottom:2px solid var(--ink)}
+  .mast .kicker{display:flex;justify-content:space-between;align-items:baseline;
+    font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .mast h1{font-family:var(--serif);font-weight:700;font-size:38px;line-height:.98;
+    letter-spacing:-.02em;margin:10px 0 0}
+  .mast h1 em{font-style:italic;font-weight:400}
+  .mast .dek{font-size:13px;color:var(--ink-2);margin-top:8px;max-width:42ch}
+
+  .tape{display:flex;gap:0;border-bottom:1px solid var(--rule);overflow:hidden}
+  .tape .cell{flex:1;padding:13px 0;border-right:1px solid var(--rule)}
+  .tape .cell:last-child{border-right:0}
+  .tape .lbl{font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);font-weight:600}
+  .tape .val{font-family:var(--mono);font-size:18px;font-weight:600;margin-top:3px;letter-spacing:-.02em}
+  .tape .val.buy{color:var(--buy)} .tape .val.sell{color:var(--sell)}
+
+  .statusline{display:flex;align-items:center;gap:8px;padding:11px 0;
+    font-size:11.5px;color:var(--muted);border-bottom:1px solid var(--rule)}
+  .blip{width:6px;height:6px;border-radius:50%;background:var(--faint);flex-shrink:0}
+  .blip.live{background:var(--buy);animation:bl 2.4s infinite}
+  @keyframes bl{0%,100%{opacity:1}50%{opacity:.35}}
+
+  .shead{display:flex;align-items:baseline;justify-content:space-between;margin:26px 0 2px}
+  .shead h2{font-family:var(--serif);font-size:15px;font-weight:700;letter-spacing:.01em}
+  .shead .meta{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:600}
+
+  .filter{display:flex;gap:20px;padding:12px 0 4px;border-bottom:1px solid var(--rule)}
+  .filter button{background:none;border:0;font-family:var(--sans);font-size:12px;font-weight:600;
+    letter-spacing:.04em;text-transform:uppercase;color:var(--faint);cursor:pointer;
+    padding:0 0 8px;position:relative}
+  .filter button.on{color:var(--ink)}
+  .filter button.on:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--signal)}
+
+  .filing-band{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;
+    color:var(--muted);text-transform:uppercase;padding:18px 0 9px;
+    display:flex;justify-content:space-between;align-items:baseline}
+  .filing-band b{color:var(--ink);font-weight:600}
+  .row{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:start;
+    padding:13px 0;border-top:1px solid var(--rule);position:relative}
+  .row:first-of-type{border-top:1px solid var(--rule-2)}
+  .tkr{font-family:var(--mono);font-weight:700;font-size:15px;letter-spacing:-.01em;min-width:58px;padding-top:1px}
+  .tkr .side{display:block;font-size:9px;font-weight:700;letter-spacing:.1em;
+    text-transform:uppercase;margin-top:3px}
+  .side.buy{color:var(--buy)} .side.sell{color:var(--sell)} .side.other{color:var(--muted)}
+  .mid{min-width:0}
+  .mid .co{font-size:14px;font-weight:600;color:var(--ink)}
+  .mid .desc{font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.45}
+  .mid .tags{font-family:var(--mono);font-size:10px;color:var(--faint);margin-top:6px;
+    letter-spacing:.02em;display:flex;gap:10px;flex-wrap:wrap}
+  .amt{font-family:var(--mono);font-size:13.5px;font-weight:600;text-align:right;
+    white-space:nowrap;font-variant-numeric:tabular-nums;padding-top:1px}
+  .amt.buy{color:var(--buy)} .amt.sell{color:var(--sell)}
+  .row .edge{position:absolute;left:-22px;top:13px;bottom:13px;width:2px}
+  .edge.buy{background:var(--buy)} .edge.sell{background:var(--sell)} .edge.other{background:var(--rule-2)}
+
+  .pf-row{padding:14px 0;border-top:1px solid var(--rule)}
+  .pf-row:first-of-type{border-top:1px solid var(--rule-2)}
+  .pf-top{display:flex;justify-content:space-between;align-items:baseline}
+  .pf-tk{font-family:var(--mono);font-weight:700;font-size:14px}
+  .pf-tk em{font-family:var(--sans);font-style:normal;font-weight:500;font-size:12px;color:var(--muted);margin-left:8px}
+  .pf-val{font-family:var(--mono);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+  .pf-bar{height:3px;background:var(--rule);margin-top:9px;position:relative}
+  .pf-bar > i{position:absolute;left:0;top:0;bottom:0;background:var(--ink)}
+  .pf-flow{font-family:var(--mono);font-size:10px;color:var(--faint);margin-top:5px;letter-spacing:.03em}
+
+  .panel{border:1px solid var(--rule-2);margin-top:16px}
+  .panel .ph{display:flex;justify-content:space-between;align-items:center;gap:14px;
+    padding:16px;border-bottom:1px solid var(--rule)}
+  .panel h3{font-size:14px;font-weight:600}
+  .panel p{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5;max-width:40ch}
+  .panel .body{padding:16px}
+  .switch{position:relative;width:46px;height:27px;flex-shrink:0}
+  .switch input{display:none}
+  .sl{position:absolute;inset:0;background:var(--rule);transition:.18s;border-radius:2px}
+  .sl:before{content:"";position:absolute;width:21px;height:21px;background:var(--paper);
+    top:3px;left:3px;transition:.18s;border-radius:1px;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+  .switch input:checked + .sl{background:var(--signal)}
+  .switch input:checked + .sl:before{transform:translateX(19px)}
+  .btn{display:block;width:100%;text-align:center;background:var(--ink);color:var(--paper);
+    font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:.03em;border:0;padding:13px;cursor:pointer}
+  .btn.ghost{background:none;color:var(--ink);border:1px solid var(--ink)}
+  .field{width:100%;background:var(--paper-2);border:1px solid var(--rule-2);color:var(--ink);
+    font-family:var(--mono);font-size:12px;padding:11px;margin-bottom:9px}
+  .field::placeholder{color:var(--faint)}
+  .howto{font-size:11.5px;color:var(--muted);line-height:1.65;padding:16px;border-top:1px solid var(--rule)}
+  .howto b{color:var(--ink)} .howto ol{margin:6px 0 0 16px} .howto li{margin:3px 0}
+
+  .foot{font-size:10.5px;color:var(--faint);line-height:1.7;padding:30px 0 8px;
+    border-top:1px solid var(--rule);margin-top:30px}
+
+  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--paper);
+    border-top:2px solid var(--ink);padding-bottom:env(safe-area-inset-bottom)}
+  .tabrow{max-width:580px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr)}
+  .tab{background:none;border:0;border-right:1px solid var(--rule);padding:12px 0 11px;cursor:pointer;
+    font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--faint);display:flex;flex-direction:column;align-items:center;gap:5px}
+  .tab:last-child{border-right:0}
+  .tab.on{color:var(--ink)}
+  .tab .num{font-family:var(--mono);font-size:9px;color:var(--faint)}
+  .tab.on .num{color:var(--signal)}
+
+  .hide{display:none}
+  .toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%) translateY(12px);
+    background:var(--ink);color:var(--paper);font-size:12.5px;padding:11px 18px;opacity:0;
+    transition:.22s;z-index:50;pointer-events:none;max-width:90vw;text-align:center}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="kicker"><span>Periodic Transaction Reports</span><span id="mastYear">2026</span></div>
+    <h1>The Pelosi <em>Ledger</em></h1>
+    <p class="dek">Every disclosed trade by Nancy &amp; Paul Pelosi, transcribed from the House Clerk's filings under the STOCK Act.</p>
+  </header>
+
+  <div class="tape">
+    <div class="cell"><div class="lbl">Latest filing</div><div class="val" id="tLatest">â</div></div>
+    <div class="cell"><div class="lbl">Transactions</div><div class="val" id="tCount">â</div></div>
+    <div class="cell"><div class="lbl">Net stance</div><div class="val" id="tNet">â</div></div>
+  </div>
+
+  <div class="statusline"><span class="blip" id="blip"></span><span id="statusText">Loadingâ¦</span></div>
+</div>
+
+<section class="wrap" id="viewLedger">
+  <div class="filter" id="filter">
+    <button data-f="all" class="on">All</button>
+    <button data-f="Buy">Purchases</button>
+    <button data-f="Sell">Sales</button>
+  </div>
+  <div id="ledger"></div>
+</section>
+
+<section class="wrap hide" id="viewPort">
+  <div class="shead"><h2>Exposure by position</h2><span class="meta">Range midpoints</span></div>
+  <p style="font-size:12px;color:var(--muted);margin:10px 0 16px;line-height:1.55">
+    Filings report dollar <em>ranges</em>, not exact sums. Bars use each range's midpoint across recent filings â read them as relative weight, not an account balance.</p>
+  <div id="portfolio"></div>
+</section>
+
+<section class="wrap hide" id="viewAlerts">
+  <div class="shead"><h2>Alerts</h2><span class="meta">Email</span></div>
+
+  <div class="panel">
+    <div class="ph"><div><h3>How alerts reach you</h3>
+      <p>A checker runs on a free timer every few hours. When a new Pelosi filing is disclosed, it emails you the trades and refreshes this app automatically â nothing to keep open.</p></div></div>
+    <div class="howto">
+      <b>Install on your iPhone</b>
+      <ol>
+        <li>Open this page in <b>Safari</b></li>
+        <li>Tap the Share icon, then <b>Add to Home Screen</b></li>
+        <li>Open it from the new icon â it refreshes itself each time</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="ph"><div><h3>Check now</h3>
+      <p>Pull the latest data this second instead of waiting for the next refresh.</p></div></div>
+    <div class="body"><button class="btn ghost" id="refreshNow">Check for new filings</button></div>
+  </div>
+
+  <div class="panel">
+    <div class="ph"><div><h3>Custom data source</h3>
+      <p>Advanced: point the app at a different feed URL. Leave blank to use the built-in one.</p></div></div>
+    <div class="body">
+      <input class="field" id="feedUrl" placeholder="(optional) https://â¦" />
+      <button class="btn ghost" id="saveFeed">Save</button>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <p class="foot">
+    Source: U.S. House Clerk, Periodic Transaction Reports (disclosures-clerk.house.gov), filed under the STOCK Act of 2012 with a statutory delay of up to 45 days. Spousal trades (Paul Pelosi) file under owner code SP. Public-domain government records, presented for transparency and education â not investment advice.
+  </p>
+</div>
+
+<nav class="tabs">
+  <div class="tabrow">
+    <button class="tab on" data-v="Ledger"><span class="num">01</span>Ledger</button>
+    <button class="tab" data-v="Port"><span class="num">02</span>Portfolio</button>
+    <button class="tab" data-v="Alerts"><span class="num">03</span>Alerts</button>
+  </div>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SEED = {
+  latestFilingId:"20066169", latestFilingDate:"2026-06-12",
+  trades:[
+    {tk:"INTC",co:"Intel Corp",action:"Buy",kind:"Options",amount:"$1Mâ$5M",mid:3000000,traded:"2026-05-29",filed:"2026-06-12",owner:"Spouse",desc:"200 calls, strike $50, exp 3/19/27"},
+    {tk:"UBER",co:"Uber Technologies",action:"Buy",kind:"Options",amount:"$500Kâ$1M",mid:750000,traded:"2026-05-29",filed:"2026-06-12",owner:"Spouse",desc:"200 calls, strike $50, exp 3/19/27"},
+    {tk:"AB",co:"AllianceBernstein",action:"Buy",kind:"Stock",amount:"$1Mâ$5M",mid:3000000,traded:"2026-01-16",filed:"2026-01-23",owner:"Spouse",desc:"Purchased 25,000 shares"},
+    {tk:"GOOGL",co:"Alphabet Class A",action:"Buy",kind:"Options",amount:"$500Kâ$1M",mid:750000,traded:"2026-01-16",filed:"2026-01-23",owner:"Spouse",desc:"Exercised 50 calls, strike $150"},
+    {tk:"GOOGL",co:"Alphabet Class A",action:"Buy",kind:"Options",amount:"$250Kâ$500K",mid:375000,traded:"2025-12-30",filed:"2026-01-23",owner:"Spouse",desc:"20 calls, strike $150, exp 1/15/27"},
+    {tk:"GOOGL",co:"Alphabet Class A",action:"Other",kind:"Stock",amount:"$1Mâ$5M",mid:0,traded:"2025-12-30",filed:"2026-01-23",owner:"Spouse",desc:"7,704 shares to donor-advised fund"},
+    {tk:"AMZN",co:"Amazon.com",action:"Buy",kind:"Options",amount:"$100Kâ$250K",mid:175000,traded:"2025-12-30",filed:"2026-01-23",owner:"Spouse",desc:"20 calls, strike $120, exp 1/15/27"},
+    {tk:"AMZN",co:"Amazon.com",action:"Sell",kind:"Stock",amount:"$1Mâ$5M",mid:3000000,traded:"2025-12-24",filed:"2026-01-23",owner:"Spouse",desc:"Sold 20,000 shares"},
+    {tk:"AMZN",co:"Amazon.com",action:"Buy",kind:"Stock",amount:"$500Kâ$1M",mid:750000,traded:"2026-01-16",filed:"2026-01-23",owner:"Spouse",desc:"Exercised 50 calls, strike $150"},
+    {tk:"AAPL",co:"Apple",action:"Sell",kind:"Stock",amount:"$5Mâ$25M",mid:15000000,traded:"2025-12-24",filed:"2026-01-23",owner:"Spouse",desc:"Sold 45,000 shares"},
+    {tk:"AAPL",co:"Apple",action:"Buy",kind:"Options",amount:"$250Kâ$500K",mid:375000,traded:"2025-12-30",filed:"2026-01-23",owner:"Spouse",desc:"20 calls, strike $100, exp 1/15/27"},
+    {tk:"AAPL",co:"Apple",action:"Other",kind:"Stock",amount:"$5Mâ$25M",mid:0,traded:"2025-12-30",filed:"2026-01-23",owner:"Spouse",desc:"28,200 shares to donor-advised fund"},
+    {tk:"NVDA",co:"NVIDIA",action:"Buy",kind:"Options",amount:"$100Kâ$250K",mid:175000,traded:"2025-12-30",filed:"2026-01-23",owner:"Spouse",desc:"20 calls, strike $100, exp 1/15/27"},
+    {tk:"NVDA",co:"NVIDIA",action:"Sell",kind:"Stock",amount:"$1Mâ$5M",mid:3000000,traded:"2025-12-24",filed:"2026-01-23",owner:"Spouse",desc:"Sold 20,000 shares"},
+    {tk:"NVDA",co:"NVIDIA",action:"Buy",kind:"Stock",amount:"$250Kâ$500K",mid:375000,traded:"2026-01-16",filed:"2026-01-23",owner:"Spouse",desc:"Exercised 50 calls, strike $80"},
+    {tk:"PYPL",co:"PayPal Holdings",action:"Sell",kind:"Stock",amount:"$250Kâ$500K",mid:375000,traded:"2025-12-30",filed:"2026-01-23",owner:"Spouse",desc:"Sold 5,000 shares"},
+    {tk:"TEM",co:"Tempus AI",action:"Buy",kind:"Stock",amount:"$50Kâ$100K",mid:75000,traded:"2026-01-16",filed:"2026-01-23",owner:"Spouse",desc:"Exercised 50 calls, strike $20"},
+    {tk:"VST",co:"Vistra Corp",action:"Buy",kind:"Stock",amount:"$100Kâ$250K",mid:175000,traded:"2026-01-16",filed:"2026-01-23",owner:"Spouse",desc:"Exercised 50 calls, strike $50"},
+    {tk:"DIS",co:"Walt Disney",action:"Sell",kind:"Stock",amount:"$1Mâ$5M",mid:3000000,traded:"2025-12-30",filed:"2026-01-23",owner:"Spouse",desc:"Sold 10,000 shares"}
+  ]
+};
+
+const LS={get:(k,d)=>{try{return JSON.parse(localStorage.getItem("pt2_"+k))??d}catch(e){return d}},
+          set:(k,v)=>localStorage.setItem("pt2_"+k,JSON.stringify(v))};
+let DATA=LS.get("data",SEED), filter="all";
+
+const $=s=>document.querySelector(s);
+const fdate=s=>new Date(s+"T00:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric"});
+const fdateY=s=>new Date(s+"T00:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+const fmoney=n=>n>=1e6?"$"+(n/1e6).toFixed(n>=1e7?0:1).replace(/\.0$/,"")+"M":n>=1e3?"$"+Math.round(n/1e3)+"K":"$"+n;
+const side=a=>a==="Buy"?"buy":a==="Sell"?"sell":"other";
+const sideLbl=a=>a==="Buy"?"Buy":a==="Sell"?"Sell":"Misc";
+
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(t._);t._=setTimeout(()=>t.classList.remove("show"),2200)}
+
+function renderTape(){
+  $("#mastYear").textContent=(DATA.latestFilingDate||"2026").slice(0,4);
+  $("#tLatest").textContent=fdate(DATA.latestFilingDate);
+  $("#tCount").textContent=String(DATA.trades.length).padStart(2,"0");
+  const b=DATA.trades.filter(t=>t.action==="Buy").length, s=DATA.trades.filter(t=>t.action==="Sell").length;
+  const el=$("#tNet");
+  el.textContent=b>s?"Buy":s>b?"Sell":"Even";
+  el.className="val "+(b>s?"buy":s>b?"sell":"");
+}
+
+function renderLedger(){
+  const rows=DATA.trades.filter(t=>filter==="all"||t.action===filter);
+  const groups={}; rows.forEach(t=>(groups[t.filed]=groups[t.filed]||[]).push(t));
+  const dates=Object.keys(groups).sort((a,b)=>b.localeCompare(a));
+  $("#ledger").innerHTML = dates.length? dates.map(d=>`
+    <div class="filing-band"><span>Disclosed <b>${fdateY(d)}</b></span><span>${groups[d].length} txns</span></div>
+    ${groups[d].map(t=>`
+      <div class="row">
+        <span class="edge ${side(t.action)}"></span>
+        <div class="tkr">${t.tk}<span class="side ${side(t.action)}">${sideLbl(t.action)}</span></div>
+        <div class="mid">
+          <div class="co">${t.co}</div>
+          <div class="desc">${t.desc}</div>
+          <div class="tags"><span>${t.owner}</span><span>${t.kind}</span><span>Traded ${fdate(t.traded)}</span></div>
+        </div>
+        <div class="amt ${side(t.action)}">${t.amount}</div>
+      </div>`).join("")}`).join("")
+    : `<p style="padding:40px 0;text-align:center;color:var(--muted);font-size:13px">No ${filter.toLowerCase()} in the current filings.</p>`;
+}
+
+function renderPort(){
+  const agg={};
+  DATA.trades.forEach(t=>{if(!t.mid)return;
+    const sign=t.action==="Sell"?-1:1;
+    agg[t.tk]=agg[t.tk]||{tk:t.tk,co:t.co,gross:0,net:0};
+    agg[t.tk].gross+=t.mid; agg[t.tk].net+=sign*t.mid;});
+  const rows=Object.values(agg).sort((a,b)=>b.gross-a.gross);
+  const max=Math.max(...rows.map(r=>r.gross),1);
+  $("#portfolio").innerHTML=rows.map(r=>{
+    const flow=r.net>0?"Net buying":r.net<0?"Net selling":"Balanced";
+    return `<div class="pf-row">
+      <div class="pf-top"><span class="pf-tk">${r.tk}<em>${r.co}</em></span><span class="pf-val">${fmoney(r.gross)}</span></div>
+      <div class="pf-bar"><i style="width:${Math.max(4,r.gross/max*100)}%"></i></div>
+      <div class="pf-flow">${flow} Â· ${r.net>=0?"+":"â"}${fmoney(Math.abs(r.net))} midpoint</div>
+    </div>`}).join("");
+}
+
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));b.classList.add("on");
+  const v=b.dataset.v;
+  viewLedger.classList.toggle("hide",v!=="Ledger");
+  viewPort.classList.toggle("hide",v!=="Port");
+  viewAlerts.classList.toggle("hide",v!=="Alerts");
+  scrollTo({top:0,behavior:"smooth"});
+});
+document.querySelectorAll("#filter button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("#filter button").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on");filter=b.dataset.f;renderLedger();
+});
+
+const feedUrl=$("#feedUrl"); if(feedUrl) feedUrl.value=LS.get("feed","");
+const saveFeed=$("#saveFeed"); if(saveFeed) saveFeed.onclick=()=>{LS.set("feed",feedUrl.value.trim());toast("Saved");checkNew(true);};
+$("#refreshNow").onclick=()=>checkNew(true);
+
+async function checkNew(manual){
+  const blip=$("#blip"),txt=$("#statusText");
+  txt.textContent="Checking for new filingsâ¦";blip.className="blip";
+  // The data file lives right next to the app (./latest.json), kept fresh by
+  // the GitHub Action. A custom feed URL (Alerts tab) overrides it if set.
+  const custom=LS.get("feed","");
+  const feed=custom||".";
+  try{
+    const r=await fetch(feed.replace(/\/$/,"")+"/latest.json",{cache:"no-store"});
+    const j=await r.json();
+    if(j&&j.latestFilingId){
+      const prev=DATA.latestFilingId;
+      DATA=j;LS.set("data",j);renderAll();
+      blip.className="blip live";
+      txt.textContent="Updated "+new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})+" Â· filing #"+j.latestFilingId;
+      if(j.latestFilingId!==prev&&prev)toast("New filing #"+j.latestFilingId);
+      else if(manual)toast("No newer filing yet");
+      return;
+    }
+  }catch(e){/* fall through to seeded data */}
+  blip.className="blip live";
+  txt.textContent="Latest filing #"+DATA.latestFilingId+" Â· "+fdateY(DATA.latestFilingDate);
+  if(manual)toast("Showing last saved data");
+}
+
+function renderAll(){renderTape();renderLedger();renderPort()}
+renderAll();
+checkNew(false);
+</script>
+</body>
+</html>
