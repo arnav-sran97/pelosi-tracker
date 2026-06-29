@@ -1,0 +1,26 @@
+{
+  "latestFilingId": "20066169",
+  "latestFilingDate": "2026-06-12",
+  "updated": "2026-06-29T21:41:27.146495Z",
+  "trades": [
+    {"tk":"INTC","co":"Intel Corp","action":"Buy","kind":"Options","amount":"$1M–$5M","mid":3000000,"traded":"2026-05-29","filed":"2026-06-12","owner":"Spouse","desc":"200 calls, strike $50, exp 3/19/27","docId":"20066169"},
+    {"tk":"UBER","co":"Uber Technologies","action":"Buy","kind":"Options","amount":"$500K–$1M","mid":750000,"traded":"2026-05-29","filed":"2026-06-12","owner":"Spouse","desc":"200 calls, strike $50, exp 3/19/27","docId":"20066169"},
+    {"tk":"AB","co":"AllianceBernstein","action":"Buy","kind":"Stock","amount":"$1M–$5M","mid":3000000,"traded":"2026-01-16","filed":"2026-01-23","owner":"Spouse","desc":"Purchased 25,000 shares","docId":"20033725"},
+    {"tk":"GOOGL","co":"Alphabet Class A","action":"Buy","kind":"Options","amount":"$500K–$1M","mid":750000,"traded":"2026-01-16","filed":"2026-01-23","owner":"Spouse","desc":"Exercised 50 calls, strike $150","docId":"20033725"},
+    {"tk":"GOOGL","co":"Alphabet Class A","action":"Buy","kind":"Options","amount":"$250K–$500K","mid":375000,"traded":"2025-12-30","filed":"2026-01-23","owner":"Spouse","desc":"20 calls, strike $150, exp 1/15/27","docId":"20033725"},
+    {"tk":"GOOGL","co":"Alphabet Class A","action":"Other","kind":"Stock","amount":"$1M–$5M","mid":0,"traded":"2025-12-30","filed":"2026-01-23","owner":"Spouse","desc":"7,704 shares to donor-advised fund","docId":"20033725"},
+    {"tk":"AMZN","co":"Amazon.com","action":"Buy","kind":"Options","amount":"$100K–$250K","mid":175000,"traded":"2025-12-30","filed":"2026-01-23","owner":"Spouse","desc":"20 calls, strike $120, exp 1/15/27","docId":"20033725"},
+    {"tk":"AMZN","co":"Amazon.com","action":"Sell","kind":"Stock","amount":"$1M–$5M","mid":3000000,"traded":"2025-12-24","filed":"2026-01-23","owner":"Spouse","desc":"Sold 20,000 shares","docId":"20033725"},
+    {"tk":"AMZN","co":"Amazon.com","action":"Buy","kind":"Stock","amount":"$500K–$1M","mid":750000,"traded":"2026-01-16","filed":"2026-01-23","owner":"Spouse","desc":"Exercised 50 calls, strike $150","docId":"20033725"},
+    {"tk":"AAPL","co":"Apple","action":"Sell","kind":"Stock","amount":"$5M–$25M","mid":15000000,"traded":"2025-12-24","filed":"2026-01-23","owner":"Spouse","desc":"Sold 45,000 shares","docId":"20033725"},
+    {"tk":"AAPL","co":"Apple","action":"Buy","kind":"Options","amount":"$250K–$500K","mid":375000,"traded":"2025-12-30","filed":"2026-01-23","owner":"Spouse","desc":"20 calls, strike $100, exp 1/15/27","docId":"20033725"},
+    {"tk":"AAPL","co":"Apple","action":"Other","kind":"Stock","amount":"$5M–$25M","mid":0,"traded":"2025-12-30","filed":"2026-01-23","owner":"Spouse","desc":"28,200 shares to donor-advised fund","docId":"20033725"},
+    {"tk":"NVDA","co":"NVIDIA","action":"Buy","kind":"Options","amount":"$100K–$250K","mid":175000,"traded":"2025-12-30","filed":"2026-01-23","owner":"Spouse","desc":"20 calls, strike $100, exp 1/15/27","docId":"20033725"},
+    {"tk":"NVDA","co":"NVIDIA","action":"Sell","kind":"Stock","amount":"$1M–$5M","mid":3000000,"traded":"2025-12-24","filed":"2026-01-23","owner":"Spouse","desc":"Sold 20,000 shares","docId":"20033725"},
+    {"tk":"NVDA","co":"NVIDIA","action":"Buy","kind":"Stock","amount":"$250K–$500K","mid":375000,"traded":"2026-01-16","filed":"2026-01-23","owner":"Spouse","desc":"Exercised 50 calls, strike $80","docId":"20033725"},
+    {"tk":"PYPL","co":"PayPal Holdings","action":"Sell","kind":"Stock","amount":"$250K–$500K","mid":375000,"traded":"2025-12-30","filed":"2026-01-23","owner":"Spouse","desc":"Sold 5,000 shares","docId":"20033725"},
+    {"tk":"TEM","co":"Tempus AI","action":"Buy","kind":"Stock","amount":"$50K–$100K","mid":75000,"traded":"2026-01-16","filed":"2026-01-23","owner":"Spouse","desc":"Exercised 50 calls, strike $20","docId":"20033725"},
+    {"tk":"VST","co":"Vistra Corp","action":"Buy","kind":"Stock","amount":"$100K–$250K","mid":175000,"traded":"2026-01-16","filed":"2026-01-23","owner":"Spouse","desc":"Exercised 50 calls, strike $50","docId":"20033725"},
+    {"tk":"DIS","co":"Walt Disney","action":"Sell","kind":"Stock","amount":"$1M–$5M","mid":3000000,"traded":"2025-12-30","filed":"2026-01-23","owner":"Spouse","desc":"Sold 10,000 shares","docId":"20033725"}
+  ]
+}
