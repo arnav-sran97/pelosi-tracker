@@ -1,0 +1,41 @@
+name: Check for new Pelosi filings
+
+# Runs automatically every 4 hours, and you can also press a button to run it now.
+on:
+  schedule:
+    - cron: "0 */4 * * *"
+  workflow_dispatch: {}
+
+# Let the job save updated data back into the repo.
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependency
+        run: pip install pypdf
+
+      - name: Check for new filings and email if found
+        env:
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+        run: python check.py
+
+      - name: Save any updates (new data / seen list)
+        run: |
+          git config user.name "pelosi-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add docs/latest.json seen.json || true
+          git commit -m "Update filings data" || echo "Nothing new to save"
+          git push || echo "Nothing to push"
