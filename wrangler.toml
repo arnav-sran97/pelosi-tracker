@@ -1,0 +1,11 @@
+name = "pelosi-tracker-subscribe"
+main = "worker/index.js"
+compatibility_date = "2024-09-23"
+
+[vars]
+GITHUB_OWNER = "arnav-sran97"
+GITHUB_REPO = "pelosi-tracker"
+ALLOWED_ORIGIN = "https://arnav-sran97.github.io"
+
+# GITHUB_TOKEN must be set as a secret (never in this file):
+#   npx wrangler secret put GITHUB_TOKEN
