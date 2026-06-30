@@ -121,6 +121,9 @@
   .field::placeholder{color:var(--faint)}
   .howto{font-size:11.5px;color:var(--muted);line-height:1.65;padding:16px;border-top:1px solid var(--rule)}
   .howto b{color:var(--ink)} .howto ol{margin:6px 0 0 16px} .howto li{margin:3px 0}
+  .sub-msg{font-size:12px;margin-top:10px;padding:9px 12px;display:none}
+  .sub-msg.ok{background:var(--buy-bg);color:var(--buy);display:block}
+  .sub-msg.err{background:var(--sell-bg);color:var(--sell);display:block}
 
   .foot{font-size:10.5px;color:var(--faint);line-height:1.7;padding:30px 0 8px;
     border-top:1px solid var(--rule);margin-top:30px}
@@ -153,12 +156,12 @@
   </header>
 
   <div class="tape">
-    <div class="cell"><div class="lbl">Latest filing</div><div class="val" id="tLatest">â</div></div>
-    <div class="cell"><div class="lbl">Transactions</div><div class="val" id="tCount">â</div></div>
-    <div class="cell"><div class="lbl">Net stance</div><div class="val" id="tNet">â</div></div>
+    <div class="cell"><div class="lbl">Latest filing</div><div class="val" id="tLatest">—</div></div>
+    <div class="cell"><div class="lbl">Transactions</div><div class="val" id="tCount">—</div></div>
+    <div class="cell"><div class="lbl">Net stance</div><div class="val" id="tNet">—</div></div>
   </div>
 
-  <div class="statusline"><span class="blip" id="blip"></span><span id="statusText">Loadingâ¦</span></div>
+  <div class="statusline"><span class="blip" id="blip"></span><span id="statusText">Loading…</span></div>
 </div>
 
 <section class="wrap" id="viewLedger">
@@ -173,7 +176,7 @@
 <section class="wrap hide" id="viewPort">
   <div class="shead"><h2>Exposure by position</h2><span class="meta">Range midpoints</span></div>
   <p style="font-size:12px;color:var(--muted);margin:10px 0 16px;line-height:1.55">
-    Filings report dollar <em>ranges</em>, not exact sums. Bars use each range's midpoint across recent filings â read them as relative weight, not an account balance.</p>
+    Filings report dollar <em>ranges</em>, not exact sums. Bars use each range's midpoint across recent filings — read them as relative weight, not an account balance.</p>
   <div id="portfolio"></div>
 </section>
 
@@ -181,14 +184,27 @@
   <div class="shead"><h2>Alerts</h2><span class="meta">Email</span></div>
 
   <div class="panel">
-    <div class="ph"><div><h3>How alerts reach you</h3>
-      <p>A checker runs on a free timer every few hours. When a new Pelosi filing is disclosed, it emails you the trades and refreshes this app automatically â nothing to keep open.</p></div></div>
+    <div class="ph"><div><h3>Get email alerts</h3>
+      <p>Enter your email and we'll notify you the moment a new Pelosi filing drops — straight from the official House Clerk records.</p></div></div>
+    <div class="body">
+      <input class="field" id="subEmail" type="email" placeholder="your@email.com" />
+      <button class="btn" id="subBtn">Subscribe</button>
+      <div class="sub-msg" id="subMsg"></div>
+    </div>
+    <div class="howto">
+      <b>Unsubscribe anytime</b> — enter your email again and tap Unsubscribe below.<br>
+      <button class="btn ghost" id="unsubBtn" style="margin-top:10px;font-size:11px;padding:8px">Unsubscribe</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="ph"><div><h3>How alerts work</h3>
+      <p>A checker runs free on a GitHub timer every 4 hours. When a new filing appears, it emails every subscriber and refreshes this app — no servers to maintain.</p></div></div>
     <div class="howto">
       <b>Install on your iPhone</b>
       <ol>
         <li>Open this page in <b>Safari</b></li>
-        <li>Tap the Share icon, then <b>Add to Home Screen</b></li>
-        <li>Open it from the new icon â it refreshes itself each time</li>
+        <li>Tap the Share icon, then <b>Add to Home Screen</b></li>        <li>Open it from the new icon — it refreshes itself each time</li>
       </ol>
     </div>
   </div>
@@ -203,7 +219,7 @@
     <div class="ph"><div><h3>Custom data source</h3>
       <p>Advanced: point the app at a different feed URL. Leave blank to use the built-in one.</p></div></div>
     <div class="body">
-      <input class="field" id="feedUrl" placeholder="(optional) https://â¦" />
+      <input class="field" id="feedUrl" placeholder="(optional) https://…" />
       <button class="btn ghost" id="saveFeed">Save</button>
     </div>
   </div>
@@ -211,7 +227,7 @@
 
 <div class="wrap">
   <p class="foot">
-    Source: U.S. House Clerk, Periodic Transaction Reports (disclosures-clerk.house.gov), filed under the STOCK Act of 2012 with a statutory delay of up to 45 days. Spousal trades (Paul Pelosi) file under owner code SP. Public-domain government records, presented for transparency and education â not investment advice.
+    Source: U.S. House Clerk, Periodic Transaction Reports (disclosures-clerk.house.gov), filed under the STOCK Act of 2012 with a statutory delay of up to 45 days. Spousal trades (Paul Pelosi) file under owner code SP. Public-domain government records, presented for transparency and education — not investment advice.
   </p>
 </div>
 
@@ -229,25 +245,25 @@
 const SEED = {
   latestFilingId:"20066169", latestFilingDate:"2026-06-12",
   trades:[
-    {tk:"INTC",co:"Intel Corp",action:"Buy",kind:"Options",amount:"$1Mâ$5M",mid:3000000,traded:"2026-05-29",filed:"2026-06-12",owner:"Spouse",desc:"200 calls, strike $50, exp 3/19/27"},
-    {tk:"UBER",co:"Uber Technologies",action:"Buy",kind:"Options",amount:"$500Kâ$1M",mid:750000,traded:"2026-05-29",filed:"2026-06-12",owner:"Spouse",desc:"200 calls, strike $50, exp 3/19/27"},
-    {tk:"AB",co:"AllianceBernstein",action:"Buy",kind:"Stock",amount:"$1Mâ$5M",mid:3000000,traded:"2026-01-16",filed:"2026-01-23",owner:"Spouse",desc:"Purchased 25,000 shares"},
-    {tk:"GOOGL",co:"Alphabet Class A",action:"Buy",kind:"Options",amount:"$500Kâ$1M",mid:750000,traded:"2026-01-16",filed:"2026-01-23",owner:"Spouse",desc:"Exercised 50 calls, strike $150"},
-    {tk:"GOOGL",co:"Alphabet Class A",action:"Buy",kind:"Options",amount:"$250Kâ$500K",mid:375000,traded:"2025-12-30",filed:"2026-01-23",owner:"Spouse",desc:"20 calls, strike $150, exp 1/15/27"},
-    {tk:"GOOGL",co:"Alphabet Class A",action:"Other",kind:"Stock",amount:"$1Mâ$5M",mid:0,traded:"2025-12-30",filed:"2026-01-23",owner:"Spouse",desc:"7,704 shares to donor-advised fund"},
-    {tk:"AMZN",co:"Amazon.com",action:"Buy",kind:"Options",amount:"$100Kâ$250K",mid:175000,traded:"2025-12-30",filed:"2026-01-23",owner:"Spouse",desc:"20 calls, strike $120, exp 1/15/27"},
-    {tk:"AMZN",co:"Amazon.com",action:"Sell",kind:"Stock",amount:"$1Mâ$5M",mid:3000000,traded:"2025-12-24",filed:"2026-01-23",owner:"Spouse",desc:"Sold 20,000 shares"},
-    {tk:"AMZN",co:"Amazon.com",action:"Buy",kind:"Stock",amount:"$500Kâ$1M",mid:750000,traded:"2026-01-16",filed:"2026-01-23",owner:"Spouse",desc:"Exercised 50 calls, strike $150"},
-    {tk:"AAPL",co:"Apple",action:"Sell",kind:"Stock",amount:"$5Mâ$25M",mid:15000000,traded:"2025-12-24",filed:"2026-01-23",owner:"Spouse",desc:"Sold 45,000 shares"},
-    {tk:"AAPL",co:"Apple",action:"Buy",kind:"Options",amount:"$250Kâ$500K",mid:375000,traded:"2025-12-30",filed:"2026-01-23",owner:"Spouse",desc:"20 calls, strike $100, exp 1/15/27"},
-    {tk:"AAPL",co:"Apple",action:"Other",kind:"Stock",amount:"$5Mâ$25M",mid:0,traded:"2025-12-30",filed:"2026-01-23",owner:"Spouse",desc:"28,200 shares to donor-advised fund"},
-    {tk:"NVDA",co:"NVIDIA",action:"Buy",kind:"Options",amount:"$100Kâ$250K",mid:175000,traded:"2025-12-30",filed:"2026-01-23",owner:"Spouse",desc:"20 calls, strike $100, exp 1/15/27"},
-    {tk:"NVDA",co:"NVIDIA",action:"Sell",kind:"Stock",amount:"$1Mâ$5M",mid:3000000,traded:"2025-12-24",filed:"2026-01-23",owner:"Spouse",desc:"Sold 20,000 shares"},
-    {tk:"NVDA",co:"NVIDIA",action:"Buy",kind:"Stock",amount:"$250Kâ$500K",mid:375000,traded:"2026-01-16",filed:"2026-01-23",owner:"Spouse",desc:"Exercised 50 calls, strike $80"},
-    {tk:"PYPL",co:"PayPal Holdings",action:"Sell",kind:"Stock",amount:"$250Kâ$500K",mid:375000,traded:"2025-12-30",filed:"2026-01-23",owner:"Spouse",desc:"Sold 5,000 shares"},
-    {tk:"TEM",co:"Tempus AI",action:"Buy",kind:"Stock",amount:"$50Kâ$100K",mid:75000,traded:"2026-01-16",filed:"2026-01-23",owner:"Spouse",desc:"Exercised 50 calls, strike $20"},
-    {tk:"VST",co:"Vistra Corp",action:"Buy",kind:"Stock",amount:"$100Kâ$250K",mid:175000,traded:"2026-01-16",filed:"2026-01-23",owner:"Spouse",desc:"Exercised 50 calls, strike $50"},
-    {tk:"DIS",co:"Walt Disney",action:"Sell",kind:"Stock",amount:"$1Mâ$5M",mid:3000000,traded:"2025-12-30",filed:"2026-01-23",owner:"Spouse",desc:"Sold 10,000 shares"}
+    {tk:"INTC",co:"Intel Corp",action:"Buy",kind:"Options",amount:"$1M–$5M",mid:3000000,traded:"2026-05-29",filed:"2026-06-12",owner:"Spouse",desc:"200 calls, strike $50, exp 3/19/27"},
+    {tk:"UBER",co:"Uber Technologies",action:"Buy",kind:"Options",amount:"$500K–$1M",mid:750000,traded:"2026-05-29",filed:"2026-06-12",owner:"Spouse",desc:"200 calls, strike $50, exp 3/19/27"},
+    {tk:"AB",co:"AllianceBernstein",action:"Buy",kind:"Stock",amount:"$1M–$5M",mid:3000000,traded:"2026-01-16",filed:"2026-01-23",owner:"Spouse",desc:"Purchased 25,000 shares"},
+    {tk:"GOOGL",co:"Alphabet Class A",action:"Buy",kind:"Options",amount:"$500K–$1M",mid:750000,traded:"2026-01-16",filed:"2026-01-23",owner:"Spouse",desc:"Exercised 50 calls, strike $150"},
+    {tk:"GOOGL",co:"Alphabet Class A",action:"Buy",kind:"Options",amount:"$250K–$500K",mid:375000,traded:"2025-12-30",filed:"2026-01-23",owner:"Spouse",desc:"20 calls, strike $150, exp 1/15/27"},
+    {tk:"GOOGL",co:"Alphabet Class A",action:"Other",kind:"Stock",amount:"$1M–$5M",mid:0,traded:"2025-12-30",filed:"2026-01-23",owner:"Spouse",desc:"7,704 shares to donor-advised fund"},
+    {tk:"AMZN",co:"Amazon.com",action:"Buy",kind:"Options",amount:"$100K–$250K",mid:175000,traded:"2025-12-30",filed:"2026-01-23",owner:"Spouse",desc:"20 calls, strike $120, exp 1/15/27"},
+    {tk:"AMZN",co:"Amazon.com",action:"Sell",kind:"Stock",amount:"$1M–$5M",mid:3000000,traded:"2025-12-24",filed:"2026-01-23",owner:"Spouse",desc:"Sold 20,000 shares"},
+    {tk:"AMZN",co:"Amazon.com",action:"Buy",kind:"Stock",amount:"$500K–$1M",mid:750000,traded:"2026-01-16",filed:"2026-01-23",owner:"Spouse",desc:"Exercised 50 calls, strike $150"},
+    {tk:"AAPL",co:"Apple",action:"Sell",kind:"Stock",amount:"$5M–$25M",mid:15000000,traded:"2025-12-24",filed:"2026-01-23",owner:"Spouse",desc:"Sold 45,000 shares"},
+    {tk:"AAPL",co:"Apple",action:"Buy",kind:"Options",amount:"$250K–$500K",mid:375000,traded:"2025-12-30",filed:"2026-01-23",owner:"Spouse",desc:"20 calls, strike $100, exp 1/15/27"},
+    {tk:"AAPL",co:"Apple",action:"Other",kind:"Stock",amount:"$5M–$25M",mid:0,traded:"2025-12-30",filed:"2026-01-23",owner:"Spouse",desc:"28,200 shares to donor-advised fund"},
+    {tk:"NVDA",co:"NVIDIA",action:"Buy",kind:"Options",amount:"$100K–$250K",mid:175000,traded:"2025-12-30",filed:"2026-01-23",owner:"Spouse",desc:"20 calls, strike $100, exp 1/15/27"},
+    {tk:"NVDA",co:"NVIDIA",action:"Sell",kind:"Stock",amount:"$1M–$5M",mid:3000000,traded:"2025-12-24",filed:"2026-01-23",owner:"Spouse",desc:"Sold 20,000 shares"},
+    {tk:"NVDA",co:"NVIDIA",action:"Buy",kind:"Stock",amount:"$250K–$500K",mid:375000,traded:"2026-01-16",filed:"2026-01-23",owner:"Spouse",desc:"Exercised 50 calls, strike $80"},
+    {tk:"PYPL",co:"PayPal Holdings",action:"Sell",kind:"Stock",amount:"$250K–$500K",mid:375000,traded:"2025-12-30",filed:"2026-01-23",owner:"Spouse",desc:"Sold 5,000 shares"},
+    {tk:"TEM",co:"Tempus AI",action:"Buy",kind:"Stock",amount:"$50K–$100K",mid:75000,traded:"2026-01-16",filed:"2026-01-23",owner:"Spouse",desc:"Exercised 50 calls, strike $20"},
+    {tk:"VST",co:"Vistra Corp",action:"Buy",kind:"Stock",amount:"$100K–$250K",mid:175000,traded:"2026-01-16",filed:"2026-01-23",owner:"Spouse",desc:"Exercised 50 calls, strike $50"},
+    {tk:"DIS",co:"Walt Disney",action:"Sell",kind:"Stock",amount:"$1M–$5M",mid:3000000,traded:"2025-12-30",filed:"2026-01-23",owner:"Spouse",desc:"Sold 10,000 shares"}
   ]
 };
 
@@ -307,7 +323,7 @@ function renderPort(){
     return `<div class="pf-row">
       <div class="pf-top"><span class="pf-tk">${r.tk}<em>${r.co}</em></span><span class="pf-val">${fmoney(r.gross)}</span></div>
       <div class="pf-bar"><i style="width:${Math.max(4,r.gross/max*100)}%"></i></div>
-      <div class="pf-flow">${flow} Â· ${r.net>=0?"+":"â"}${fmoney(Math.abs(r.net))} midpoint</div>
+      <div class="pf-flow">${flow} · ${r.net>=0?"+":"−"}${fmoney(Math.abs(r.net))} midpoint</div>
     </div>`}).join("");
 }
 
@@ -330,9 +346,7 @@ $("#refreshNow").onclick=()=>checkNew(true);
 
 async function checkNew(manual){
   const blip=$("#blip"),txt=$("#statusText");
-  txt.textContent="Checking for new filingsâ¦";blip.className="blip";
-  // The data file lives right next to the app (./latest.json), kept fresh by
-  // the GitHub Action. A custom feed URL (Alerts tab) overrides it if set.
+  txt.textContent="Checking for new filings…";blip.className="blip";
   const custom=LS.get("feed","");
   const feed=custom||".";
   try{
@@ -342,20 +356,55 @@ async function checkNew(manual){
       const prev=DATA.latestFilingId;
       DATA=j;LS.set("data",j);renderAll();
       blip.className="blip live";
-      txt.textContent="Updated "+new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})+" Â· filing #"+j.latestFilingId;
+      txt.textContent="Updated "+new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})+" · filing #"+j.latestFilingId;
       if(j.latestFilingId!==prev&&prev)toast("New filing #"+j.latestFilingId);
       else if(manual)toast("No newer filing yet");
       return;
     }
   }catch(e){/* fall through to seeded data */}
   blip.className="blip live";
-  txt.textContent="Latest filing #"+DATA.latestFilingId+" Â· "+fdateY(DATA.latestFilingDate);
+  txt.textContent="Latest filing #"+DATA.latestFilingId+" · "+fdateY(DATA.latestFilingDate);
   if(manual)toast("Showing last saved data");
 }
 
-function renderAll(){renderTape();renderLedger();renderPort()}
+function renderAll(){renderTape();renderLedger();renderPort();}
 renderAll();
 checkNew(false);
+
+// ---- subscribe / unsubscribe -----------------------------------------------
+// Replace this URL after you deploy the Cloudflare Worker:
+const WORKER_URL = "YOUR_WORKER_URL_HERE";
+
+async function callWorker(path, email) {
+  const msg = $("#subMsg");
+  msg.className = "sub-msg";
+  msg.textContent = "";
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    msg.className = "sub-msg err"; msg.textContent = "Please enter a valid email address."; return;
+  }
+  if (WORKER_URL === "YOUR_WORKER_URL_HERE") {
+    msg.className = "sub-msg err"; msg.textContent = "Alerts not yet configured — check back soon."; return;
+  }
+  const btn = path === "/subscribe" ? $("#subBtn") : $("#unsubBtn");
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = "…";
+  try {
+    const r = await fetch(WORKER_URL + path, {
+      method: "POST", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ email })
+    });
+    const j = await r.json();
+    if (j.ok) { msg.className = "sub-msg ok"; msg.textContent = j.message; }
+    else { msg.className = "sub-msg err"; msg.textContent = j.error || "Something went wrong."; }
+  } catch(e) {
+    msg.className = "sub-msg err"; msg.textContent = "Could not reach server — try again.";
+  } finally {
+    btn.disabled = false; btn.textContent = orig;
+  }
+}
+
+$("#subBtn").onclick  = () => callWorker("/subscribe",   $("#subEmail").value.trim().toLowerCase());
+$("#unsubBtn").onclick = () => callWorker("/unsubscribe", $("#subEmail").value.trim().toLowerCase());
 </script>
 </body>
 </html>
