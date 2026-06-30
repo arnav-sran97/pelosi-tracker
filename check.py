@@ -100,15 +100,34 @@ def parse_ptr_pdf(year, doc_id):
     return parse_ptr_text(text)
 
 # ---------------------------------------------------------------- email
-def send_email(subject, body):
-    user=os.getenv("SMTP_USER"); pw=os.getenv("SMTP_PASS"); to=os.getenv("EMAIL_TO") or user
+SUBS = HERE / "subscribers.json"   # list of subscriber emails
+
+def get_recipients():
+    """Return list of emails to alert. Combines EMAIL_TO secret + subscribers.json."""
+    user = os.getenv("SMTP_USER")
+    owner = os.getenv("EMAIL_TO") or user  # the repo owner always gets alerts
+    subs = load(SUBS, {}).get("emails", [])
+    all_to = list({owner} | set(subs)) if owner else list(set(subs))
+    return [e for e in all_to if e]
+
+def send_email(subject, body, recipients=None):
+    user=os.getenv("SMTP_USER"); pw=os.getenv("SMTP_PASS")
     if not (user and pw):
         print("(no email secrets set — skipping email, just updating the app data)")
         return
-    msg=MIMEText(body); msg["Subject"]=subject; msg["From"]=user; msg["To"]=to
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as s:
-        s.login(user, pw); s.send_message(msg)
-    print(f"Emailed {to}")
+    if recipients is None:
+        recipients = get_recipients()
+    if not recipients:
+        print("(no recipients configured)")
+        return
+    for to in recipients:
+        try:
+            msg=MIMEText(body); msg["Subject"]=subject; msg["From"]=user; msg["To"]=to
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as s:
+                s.login(user, pw); s.send_message(msg)
+            print(f"Emailed {to}")
+        except Exception as e:
+            print(f"Failed to email {to}: {e}")
 
 # ---------------------------------------------------------------- main
 def load(p,d):
@@ -143,14 +162,17 @@ def run():
     print(f"Updated app data — {len(all_trades)} trades, latest #{newest['doc_id']}")
 
     if fresh:
+        recipients = get_recipients()
+        print(f"Sending alerts to {len(recipients)} recipient(s): {recipients}")
         for f,tr,fd in fresh:
             lines=[f"{t['action'].upper():5} {t['tk']:6} {t['amount']:10} — {t['owner']} ({t['kind']})" for t in tr]
             body=(f"New Pelosi filing disclosed\n"
                   f"Filing #{f['doc_id']} • disclosed {fd} • {len(tr)} trades\n\n"
                   + "\n".join(lines) +
-                  f"\n\nView the full filing:\n{BASE}/ptr-pdfs/{f['year']}/{f['doc_id']}.pdf\n")
+                  f"\n\nView the full filing:\n{BASE}/ptr-pdfs/{f['year']}/{f['doc_id']}.pdf\n"
+                  f"\nSee all trades: https://arnav-sran97.github.io/pelosi-tracker/\n")
             print("ALERT:\n"+body)
-            send_email(f"🏛️ New Pelosi filing — {len(tr)} trades (#{f['doc_id']})", body)
+            send_email(f"🏛️ New Pelosi filing — {len(tr)} trades (#{f['doc_id']})", body, recipients)
             seen.add(f["doc_id"])
         SEEN.write_text(json.dumps({"seen":sorted(seen)}, indent=2))
     else:
